@@ -1,0 +1,22 @@
+[
+    {
+        "merged": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/res/merged/debug/drawable/finger_right.xml",
+        "source": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/src/main/res/drawable/finger_right.xml"
+    },
+    {
+        "merged": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/res/merged/debug/drawable/login_background.xml",
+        "source": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/src/main/res/drawable/login_background.xml"
+    },
+    {
+        "merged": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/res/merged/debug/drawable/fpt_dialog_bottom_bg.xml",
+        "source": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/src/main/res/drawable/fpt_dialog_bottom_bg.xml"
+    },
+    {
+        "merged": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/res/merged/debug/drawable/fpt_dialog_bg.xml",
+        "source": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/src/main/res/drawable/fpt_dialog_bg.xml"
+    },
+    {
+        "merged": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/res/merged/debug/drawable/finger_wrong.xml",
+        "source": "/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/src/main/res/drawable/finger_wrong.xml"
+    }
+]

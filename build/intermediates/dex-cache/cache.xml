@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="21bce25fac54603878f9d551f945b1ed165c3fa1">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_a941eb847d1ba616af61818c410ed600a6f40ca5/classes.dex" />
+    </item>
+    <item
+        jar="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-appindexing/8.1.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="4477ea44f5ec5ad064022a22691732d7638ff197">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.google.android.gms-play-services-appindexing-8.1.0_621f852d8c4cf202c1315d2577890a574a5a9174/classes.dex" />
+    </item>
+    <item
+        jar="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-basement/8.1.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="d0dda274b703dd9c5bb056867649d22b4171ae7d">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.google.android.gms-play-services-basement-8.1.0_2931aba9499087294751c6a03ddfe24417fdc5e6/classes.dex" />
+    </item>
+    <item
+        jar="/usr/local/android/android-sdk-macosx/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.4.0_48a25502877b0dabde05551c012d4c1b1f7178d5/classes.dex" />
+    </item>
+    <item
+        jar="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.4.0_fb79ec8bee899390ebd5fe29a47b5dc5a094d806/classes.dex" />
+    </item>
+    <item
+        jar="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-23.4.0_d04db1f2a03db07440abf28ed2c8b7f7c7bd5be2/classes.dex" />
+    </item>
+    <item
+        jar="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="60722df457b25769240619a2d3aeff70a76745b1">
+        <dex dex="/Users/zhangchao/Work/technology/android/workspace/FingerprintTest/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_eb1bf5adf2ab1f37859ed3ffcd661879f8ee6837/classes.dex" />
+    </item>
+
+</items>
