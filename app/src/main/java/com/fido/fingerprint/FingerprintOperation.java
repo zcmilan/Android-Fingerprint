@@ -1,13 +1,16 @@
 package com.fido.fingerprint;
 
-import com.fido.utils.Logger;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.fingerprint.FingerprintManager;
 import android.hardware.fingerprint.FingerprintManager.AuthenticationCallback;
 import android.hardware.fingerprint.FingerprintManager.CryptoObject;
 import android.os.CancellationSignal;
 
+import com.fido.utils.Logger;
+
+
+@SuppressLint("NewApi")
 public class FingerprintOperation {
 	
 	private static final String TAG = FingerprintOperation.class.getSimpleName();
@@ -22,6 +25,7 @@ public class FingerprintOperation {
 
 	public void startListening(CryptoObject mCryptoObject,AuthenticationCallback callback) {
 		Logger.d(TAG, "startListening called");
+		Logger.d(TAG+"crypto in", "startListening:"+mCryptoObject);
 		fptMngr.authenticate(mCryptoObject, cancelSignal, 0, callback, null);
 	}
 

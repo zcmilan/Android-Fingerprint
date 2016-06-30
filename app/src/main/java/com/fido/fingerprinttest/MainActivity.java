@@ -15,14 +15,15 @@ import android.util.Base64;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
-import com.fido.fingerprint.CryptoOperation;
-import com.fido.fingerprint.CryptoOperation.TYPE;
+import com.fido.crypto.CryptoOperation;
+import com.fido.crypto.CryptoOperation.TYPE;
 import com.fido.fingerprint.FingerprintControl;
 import com.fido.fingerprint.FingerprintControl.FingerCallback;
 import com.fido.fingerprint.FingerprintControl.FingerResult;
-import com.fido.fingerprint.crypto.CipherHelper;
-import com.fido.fingerprint.crypto.SignHelper;
+import com.fido.crypto.impl.CipherHelper;
+import com.fido.crypto.impl.SignHelper;
 import com.fido.utils.Logger;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -33,10 +34,10 @@ public class MainActivity extends Activity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
-	private static final String KEY_SIGN = "sign_key11";
+	private static final String KEY_SIGN = "sign_key1";
 	private static final String TEST_SIGN = "testsign";
 
-	private static final String KEY_CIPHER = "cipher_key17";
+	private static final String KEY_CIPHER = "cipher_key1";
 	private static final String TEST_CIPHER = "testcipher";
 
 
@@ -76,30 +77,36 @@ public class MainActivity extends Activity {
 		btnCipherDecrypt.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				final CryptoObject object = crypt.createCryptoObject(TYPE.CIPHER_DECRYPT, KEY_CIPHER);
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						FingerprintControl.getInstance().showUI(MainActivity.this, object, new FingerCallback() {
-							@Override
-							public void onResult(FingerResult result, String des, AuthenticationResult fingerResult) {
-								if (result == FingerResult.SUCCESS) {
-									Logger.d(TAG, "authenticate success");
+				if(ciphed != null && ciphed.length > 0){
+					final CryptoObject object = crypt.createCryptoObject(TYPE.CIPHER_DECRYPT, KEY_CIPHER);
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							FingerprintControl.getInstance(MainActivity.this).showUI(MainActivity.this, object, new FingerCallback() {
+								@Override
+								public void onResult(FingerResult result, String des, AuthenticationResult fingerResult) {
+									if (result == FingerResult.SUCCESS) {
+										Logger.d(TAG, "authenticate success");
 
-									Cipher cipher = fingerResult.getCryptoObject().getCipher();
-									byte[] original = CipherHelper.cipherDencrypt(cipher, ciphed);
-									try {
-										Logger.d(TAG, "authenticate data:" + new String(original,"utf-8"));
-									} catch (UnsupportedEncodingException e) {
-										e.printStackTrace();
+										Cipher cipher = fingerResult.getCryptoObject().getCipher();
+										byte[] original = CipherHelper.cipherDencrypt(cipher, ciphed);
+
+										try {
+											Logger.d(TAG, "authenticate data:" + new String(original,"utf-8"));
+										} catch (UnsupportedEncodingException e) {
+											e.printStackTrace();
+										}
+									} else {
+										Logger.d(TAG, "authenticate failed");
 									}
-								} else {
-									Logger.d(TAG, "authenticate failed");
 								}
-							}
-						});
-					}
-				}).start();
+							});
+						}
+					}).start();
+				}else {
+					Logger.e(TAG,"ciphed is null");
+				}
+
 			}
 		});
 		btnCipherEncrypt.setOnClickListener(new OnClickListener() {
@@ -111,7 +118,7 @@ public class MainActivity extends Activity {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						FingerprintControl.getInstance().showUI(MainActivity.this, object, new FingerCallback() {
+						FingerprintControl.getInstance(MainActivity.this).showUI(MainActivity.this, object, new FingerCallback() {
 							@Override
 							public void onResult(FingerResult result, String des, AuthenticationResult fingerResult) {
 								if (result == FingerResult.SUCCESS) {
@@ -120,8 +127,12 @@ public class MainActivity extends Activity {
 
 									Cipher cipher = fingerResult.getCryptoObject().getCipher();
 									ciphed = CipherHelper.cipherEncrypt(cipher, testStr);
-									Logger.d(TAG, "authenticate ciphered:" + Base64.encodeToString(ciphed, Base64.DEFAULT));
 
+									if(ciphed != null && ciphed.length > 0){
+										Logger.d(TAG, "authenticate ciphered:" + Base64.encodeToString(ciphed, Base64.DEFAULT));
+									}else {
+										Logger.e(TAG,"authenticate error");
+									}
 								} else {
 									Logger.d(TAG, "authenticate failed");
 								}
@@ -147,7 +158,7 @@ public class MainActivity extends Activity {
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						FingerprintControl.getInstance().showUI(MainActivity.this, object, new FingerCallback() {
+						FingerprintControl.getInstance(MainActivity.this).showUI(MainActivity.this, object, new FingerCallback() {
 							@Override
 							public void onResult(FingerResult result, String des, AuthenticationResult fingerResult) {
 								if (result == FingerResult.SUCCESS) {
@@ -156,15 +167,20 @@ public class MainActivity extends Activity {
 
 									Signature signature = fingerResult.getCryptoObject().getSignature();
 									byte[] signed = SignHelper.signUpdate(signature, testStr);
-									Logger.d(TAG, "authenticate signed:" + Base64.encodeToString(signed, Base64.DEFAULT));
+									if(signed!=null && signed.length > 0){
+										Logger.d(TAG, "authenticate signed:" + Base64.encodeToString(signed, Base64.DEFAULT));
 
-									PublicKey publickey = SignHelper.signGetPublickey(KEY_SIGN);
-									Logger.d(TAG, "authenticate publickey:" + Base64.encodeToString(publickey.getEncoded(), Base64.DEFAULT));
-									boolean verifyResult = SignHelper.signVerify(publickey, testStr, signed);
+										PublicKey publickey = SignHelper.signGetPublickey(KEY_SIGN);
+										Logger.d(TAG, "authenticate publickey:" + Base64.encodeToString(publickey.getEncoded(), Base64.DEFAULT));
+										boolean verifyResult = SignHelper.signVerify(publickey, testStr, signed);
 
-									Logger.d(TAG, "authenticate verifyResult:" + verifyResult);
+										Logger.d(TAG, "authenticate verifyResult:" + verifyResult);
+									}else {
+										Logger.e(TAG,"signed error");
+									}
 								} else {
 									Logger.d(TAG, "authenticate failed");
+
 								}
 							}
 						});

@@ -1,4 +1,4 @@
-package com.fido.fingerprint.crypto;
+package com.fido.crypto.impl;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -152,17 +152,25 @@ public class SignHelper {
 	public static CryptoObject createSignCryptoObject(String keyName) {
 		Logger.d(aTAG, "createCryptoObject");
 		CryptoObject mCryptoObject = null;
-		try {
-			Signature signature = initSignature(keyName);
-			if (signature!=null) {
-				mCryptoObject = new FingerprintManager.CryptoObject(signature);
-				return mCryptoObject;
-			} else {
-				Logger.e(aTAG, "initCipher failed!");
-				return null;
-			}
-		} catch (RuntimeException e) {
-			Logger.e(aTAG, "Failed to initSignature: " + e);
+//		try {
+//			Signature signature = initSignature(keyName);
+//			if (signature!=null) {
+//				mCryptoObject = new FingerprintManager.CryptoObject(signature);
+//				return mCryptoObject;
+//			} else {
+//				Logger.e(aTAG, "initCipher failed!");
+//				return null;
+//			}
+//		} catch (RuntimeException e) {
+//			Logger.e(aTAG, "Failed to initSignature: " + e);
+//			return null;
+//		}
+		Signature signature = initSignature(keyName);
+		if (signature!=null) {
+			mCryptoObject = new FingerprintManager.CryptoObject(signature);
+			return mCryptoObject;
+		} else {
+			Logger.e(aTAG, "initCipher failed!");
 			return null;
 		}
 	}

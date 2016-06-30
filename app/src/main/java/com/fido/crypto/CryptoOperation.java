@@ -1,9 +1,9 @@
-package com.fido.fingerprint;
+package com.fido.crypto;
 
 import android.hardware.fingerprint.FingerprintManager.CryptoObject;
 
-import com.fido.fingerprint.crypto.CipherHelper;
-import com.fido.fingerprint.crypto.SignHelper;
+import com.fido.crypto.impl.CipherHelper;
+import com.fido.crypto.impl.SignHelper;
 import com.fido.utils.Logger;
 
 import javax.crypto.Cipher;

@@ -2,11 +2,13 @@ package com.fido.fingerprinttest;
 
 import java.io.UnsupportedEncodingException;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.fingerprint.FingerprintManager.AuthenticationCallback;
 import android.hardware.fingerprint.FingerprintManager.AuthenticationResult;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.app.ActivityCompat;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -23,17 +26,18 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.fido.fingerprint.FingerprintControl;
-import com.fido.fingerprint.FingerprintControl.FingerResult;
 import com.fido.fingerprint.FingerprintOperation;
+import com.fido.fingerprint.FpMatcher;
 import com.fido.utils.Logger;
 
+@SuppressLint("NewApi")
 public class FpActivity extends Activity {
-
 	private static final String TAG = FpActivity.class.getSimpleName();
 
 	public static final int MAX_DEFAULT = 5;
+	public static final String REQUEST_AAID = "request_aaid";
 	public static final String REQUEST_COUNT = "request_count";
 	public static final String REQUEST_MSNG = "request_msng";
 
@@ -47,24 +51,56 @@ public class FpActivity extends Activity {
 	int max_mismatch_times = MAX_DEFAULT;
 
 	private Messenger msng;
-	
-	private CryptoObject mCryptoObject;
+
+	private static CryptoObject mCryptoObject;
 	private FingerprintOperation mOperation;
+
+	// three parameters
+	// @param context
+	// @param transaction text
+	// @param uiParameters
+	// @param Messenger
+	public static void showUI(Context mContext, FpParameter parameter, Messenger msgner) {
+		if (parameter != null) {
+			mCryptoObject = parameter.getmCryptoObject();
+
+			Intent intent = new Intent(mContext, FpActivity.class);
+			// TODO transaction
+			// intent.putExtra("isTransaction", isTransaction);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.putExtra(REQUEST_AAID, parameter.getAAID());
+			intent.putExtra(REQUEST_MSNG, msgner);
+			mContext.startActivity(intent);
+		} else {
+			Logger.e(TAG, "showUI error , paramter is null");
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+		if (!keyguardManager.isKeyguardSecure()) {
+			Toast.makeText(this, "Lock screen security not enabled in Settings", Toast.LENGTH_LONG).show();
+			triggerCallback(FpMatcher.FP_RESULT.ERRORAUTH, null);
+			return;
+		}
+		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+			Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show();
+			triggerCallback(FpMatcher.FP_RESULT.ERRORAUTH, null);
+			return;
+		}
+
 		setContentView(R.layout.fpt_dialog);
 
 		isManageStart = false;
-		mCryptoObject = FingerprintControl.getCrypt();
-		
 		counter = 0;
 		Intent intent = getIntent();
 		if (intent.getIntExtra(REQUEST_COUNT, -1) != -1) {
 			max_mismatch_times = intent.getIntExtra(REQUEST_COUNT, -1);
 		}
-		if(intent.getParcelableExtra(REQUEST_MSNG)!=null){
+		if (intent.getParcelableExtra(REQUEST_MSNG) != null) {
 			msng = intent.getParcelableExtra(REQUEST_MSNG);
 		}
 		finger_dialog_image = (ImageView) findViewById(R.id.finger_imageview);
@@ -130,12 +166,11 @@ public class FpActivity extends Activity {
 
 	public void startIdentify() {
 		if (mCryptoObject != null) {
-			mOperation.startListening(mCryptoObject,new AuthenticationCallback() {
+			Logger.d(TAG+"crypto in", "startIdentify:"+mCryptoObject);
+			mOperation.startListening(mCryptoObject, new AuthenticationCallback() {
 				@Override
-				public void onAuthenticationError(int errorCode,
-						CharSequence errString) {
-					Logger.d(TAG, "onAuthenticationError errorCode:"
-							+ errorCode + " errString:" + errString);
+				public void onAuthenticationError(int errorCode, CharSequence errString) {
+					Logger.d(TAG, "onAuthenticationError errorCode:" + errorCode + " errString:" + errString);
 
 					if (errorCode == 3) {
 						updateTimeOutUI();
@@ -145,11 +180,10 @@ public class FpActivity extends Activity {
 						updateErrorUI();
 					}
 				}
+
 				@Override
-				public void onAuthenticationHelp(int helpCode,
-						CharSequence helpString) {
-					Logger.d(TAG, "onAuthenticationHelp helpCode:" + helpCode
-							+ " helpString:" + helpString);
+				public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+					Logger.d(TAG, "onAuthenticationHelp helpCode:" + helpCode + " helpString:" + helpString);
 				}
 
 				@Override
@@ -169,10 +203,10 @@ public class FpActivity extends Activity {
 
 				}
 
-				public void onAuthenticationSucceeded(
-						AuthenticationResult result) {
+				public void onAuthenticationSucceeded(AuthenticationResult result) {
 					Logger.d(TAG, "onAuthenticationSuccessed");
-					if (result != null ) {
+					if (result != null) {
+						Logger.d(TAG+"crypto out", "onAuthenticationSucceeded:"+result.getCryptoObject());
 						updateSuccessUI(result);
 					} else {
 						Logger.e(TAG, "FingerprintId is not available!");
@@ -190,9 +224,8 @@ public class FpActivity extends Activity {
 		finger_dialog_image.setImageResource(R.drawable.finger_right);
 		finger_dialog_hint.setTextColor(Color.rgb(23, 209, 38));
 		finger_dialog_hint.setText(R.string.fingerprint_matched);
-		
-		//success callback
-		triggerCallback(FingerResult.SUCCESS,crpt);
+		// success callback
+		triggerCallback(FpMatcher.FP_RESULT.SUCCESS, crpt);
 	}
 
 	private void updateMismatchUI(boolean lockout) {
@@ -215,8 +248,7 @@ public class FpActivity extends Activity {
 					if (counter >= max_mismatch_times) {
 						mOperation.stopListening();
 					} else {
-						Logger.i(TAG, "UNUSED!!!Mismatch " + max_mismatch_times
-								+ " times! UI closed.");
+						Logger.i(TAG, "UNUSED!!!Mismatch " + max_mismatch_times + " times! UI closed.");
 					}
 
 				}
@@ -234,30 +266,30 @@ public class FpActivity extends Activity {
 		finger_dialog_hint.setTextColor(Color.RED);
 		finger_dialog_hint.setText(R.string.timeout);
 
-		//update time out
-		triggerCallback(FingerResult.FAILED,null);
+		// update time out
+		triggerCallback(FpMatcher.FP_RESULT.TIMEOUT, null);
 	}
 
 	private void updateErrorUI() {
 		finger_dialog_image.setImageResource(R.drawable.finger_wrong);
 		finger_dialog_hint.setTextColor(Color.RED);
 		finger_dialog_hint.setText(R.string.unknown_error);
-		//update ERROR
-		triggerCallback(FingerResult.FAILED,null);
+		// update ERROR
+		triggerCallback(FpMatcher.FP_RESULT.ERRORAUTH, null);
 	}
 
 	public void onClick(View v) {
 		int id = v.getId();
 		if (id == R.id.fpt_dialog_bottom_cancel) {
 			isManageStart = false;
-			//cancel
-			triggerCallback(FingerResult.FAILED,null);
+			// cancel
+			triggerCallback(FpMatcher.FP_RESULT.CANCEL, null);
 		} else if (id == R.id.fpt_dialog_bottom_ok_manage) {
 			Logger.i(TAG, "OK to redirect to Settings.");
 			isManageStart = true;
 			Logger.d(TAG, "Go to FingerprintSetting");
-			
-			//jump to setting
+
+			// jump to setting
 		}
 
 	}
@@ -265,8 +297,8 @@ public class FpActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
-		//cancel
-		triggerCallback(FingerResult.CANCEL,null);
+		// cancel
+		triggerCallback(FpMatcher.FP_RESULT.CANCEL, null);
 	}
 
 	@Override
@@ -274,8 +306,8 @@ public class FpActivity extends Activity {
 		super.onPause();
 		Logger.i(TAG, "onPause called");
 		if (!isManageStart) {
-			//cancel
-			triggerCallback(FingerResult.CANCEL,null);
+			// cancel
+			triggerCallback(FpMatcher.FP_RESULT.CANCEL, null);
 		}
 	}
 
@@ -287,31 +319,120 @@ public class FpActivity extends Activity {
 			isManageStart = false;
 			if (!mOperation.hasEnrolledFingerprints()) {
 				Logger.d(TAG, "Still No Enrolled Fingerprints");
-				//cancel
-				triggerCallback(FingerResult.CANCEL,null);
+				// cancel
+				triggerCallback(FpMatcher.FP_RESULT.CANCEL, null);
 			} else {
 				setVerifyUI();
 				startIdentify();
 			}
 		}
 	}
-	
-	private void triggerCallback(FingerResult result,AuthenticationResult crypt){
+
+	private void triggerCallback(FpMatcher.FP_RESULT FPResult, AuthenticationResult crypt) {
 		Logger.d(TAG, "triggerCallback");
 		Message msg = Message.obtain();
-		msg.arg1 = result.ordinal();
-		msg.obj = crypt;
-		if(msng!=null){
+		msg.arg1 = FPResult.ordinal();
+		msg.obj = new FpResult().setFPResult(FPResult).setCrypt(crypt);
+		if (msng != null) {
 			try {
 				msng.send(msg);
 				msng = null;
 				this.finish();
 			} catch (RemoteException e) {
-				Log.d(TAG, "triggerCallback ERROR");
+				Log.d(TAG, "triggerCallback ERROR,e:" + e.getMessage());
 				e.printStackTrace();
 			}
-		}else {
+		} else {
 			Log.d(TAG, "triggerCallback ERROR");
 		}
+	}
+
+	public static class FpResult {
+		public AuthenticationResult crypt;
+		public FpMatcher.FP_RESULT FPResult;
+
+		public FpResult setCrypt(AuthenticationResult crypt) {
+			this.crypt = crypt;
+			return this;
+		}
+
+		public FpResult setFPResult(FpMatcher.FP_RESULT FPResult) {
+			this.FPResult = FPResult;
+			return this;
+		}
+	}
+
+	public static class FpParameter {
+		// String transaction , String uiParameters, Messenger messenger, String
+		// AAID , CryptoObject cryptoObject
+
+		private boolean isTransaction;
+		private String transaction;
+		private String title;
+		private String hint;
+		private String AAID;
+		private CryptoObject mCryptoObject;
+
+		private FpParameter() {
+		}
+
+		public static FpParameter Builder() {
+			return new FpParameter();
+		}
+
+		public boolean isTransaction() {
+			return isTransaction;
+		}
+
+		public FpParameter setTransaction(boolean isTransaction) {
+			this.isTransaction = isTransaction;
+			return this;
+		}
+
+		public String getTransaction() {
+			return transaction;
+		}
+
+		public FpParameter setTransaction(String transaction) {
+			this.transaction = transaction;
+			return this;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public FpParameter setTitle(String title) {
+			this.title = title;
+			return this;
+		}
+
+		public String getHint() {
+			return hint;
+		}
+
+		public FpParameter setHint(String hint) {
+			this.hint = hint;
+			return this;
+		}
+
+		public String getAAID() {
+			return AAID;
+		}
+
+		public FpParameter setAAID(String aAID) {
+			AAID = aAID;
+			return this;
+		}
+
+		public CryptoObject getmCryptoObject() {
+			return mCryptoObject;
+		}
+
+		public FpParameter setmCryptoObject(CryptoObject mCryptoObject) {
+			this.mCryptoObject = mCryptoObject;
+			return this;
+		}
+
 	}
 }

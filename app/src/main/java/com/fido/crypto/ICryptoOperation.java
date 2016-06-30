@@ -1,4 +1,4 @@
-package com.fido.fingerprint;
+package com.fido.crypto;
 
 public interface ICryptoOperation {
 
